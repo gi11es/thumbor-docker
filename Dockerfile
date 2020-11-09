@@ -13,3 +13,6 @@ WORKDIR /root
 ADD thumbor /root/thumbor/
 WORKDIR /root/thumbor
 RUN make PYTHON=python3 setup test
+ADD thumbor-plugins /root/thumbor-plugins/
+WORKDIR /root/thumbor-plugins
+RUN make setup offline-test
