@@ -4,3 +4,9 @@
 [submodule "thumbor"]
 	path = thumbor
 	url = https://github.com/gi11es/thumbor
+[submodule "core"]
+	path = core
+	url = https://github.com/thumbor-community/core
+[submodule "pyvows"]
+	path = pyvows
+	url = https://github.com/heynemann/pyvows

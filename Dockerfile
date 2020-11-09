@@ -13,6 +13,12 @@ WORKDIR /root
 ADD thumbor /root/thumbor/
 WORKDIR /root/thumbor
 RUN make PYTHON=python3 setup test
+ADD pyvows /root/pyvows/
+WORKDIR /root/pyvows
+RUN make setup
+ADD core /root/core/
+WORKDIR /root/core
+RUN make PIP=pip3 setup pyvows_run install
 ADD thumbor-plugins /root/thumbor-plugins/
 WORKDIR /root/thumbor-plugins
 RUN make setup offline-test
