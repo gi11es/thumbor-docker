@@ -12,7 +12,7 @@ from tornado.httpclient import HTTPRequest
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.importer import Importer
-from thumbor.utils import which
+from shutil import which
 
 from wikimedia_thumbor.app import App
 

@@ -15,7 +15,6 @@
 import importlib
 
 from thumbor.loaders import http_loader, https_loader
-from tornado.concurrent import return_future
 from thumbor.utils import logger
 
 
@@ -42,8 +41,7 @@ def encode(string):  # pragma: no cover
     return http_loader.encode(string)
 
 
-@return_future
-def load(context, url, callback):
+async def load(context, url, callback):
     for loader in context.config.PROXY_LOADER_LOADERS:
         if loader in modules:
             mod = modules[loader]

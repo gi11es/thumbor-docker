@@ -8,13 +8,12 @@
 # And sets the xkey for Varnish purging purposes
 
 from functools import partial
-from urllib import quote
+from urllib.parse import quote
 from wsgiref.handlers import format_date_time
 from time import mktime
 import datetime
 import json
 import hashlib
-import md5
 import memcache
 import random
 import sys
@@ -241,7 +240,7 @@ class ImagesHandler(ImagingHandler):
 
             if '!' in filename:
                 hashed_name = filename.split('!', 1)[1] + '.' + kw['extension']
-                hashed = md5.new(hashed_name).hexdigest()
+                hashed = hashlib.md5(hashed_name).hexdigest()
                 original_shard1 = hashed[:1]
                 original_shard2 = hashed[:2]
 

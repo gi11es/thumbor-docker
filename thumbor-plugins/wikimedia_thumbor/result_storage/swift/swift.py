@@ -13,7 +13,6 @@ import random
 
 from swiftclient import client
 from swiftclient.exceptions import ClientException
-from tornado.concurrent import return_future
 
 from thumbor.result_storages import BaseStorage
 from thumbor.utils import logger
@@ -125,8 +124,7 @@ class Storage(BaseStorage):
             # We cannnot let exceptions bubble up, because they would leave
             # the client's connection hanging
 
-    @return_future
-    def get(self, callback):
+    async def get(self, callback):
         self.debug('[SWIFT_STORAGE] get: %r %r' % (
                 self.context.wikimedia_thumbnail_container,
                 self.context.wikimedia_thumbnail_save_path

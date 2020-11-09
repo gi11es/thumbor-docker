@@ -23,7 +23,6 @@ from tempfile import NamedTemporaryFile
 from thumbor.loaders import LoaderResult
 from thumbor.utils import logger
 
-from tornado.concurrent import return_future
 from tornado.process import Subprocess
 
 
@@ -47,8 +46,7 @@ def should_run(url):  # pragma: no cover
     return False
 
 
-@return_future
-def load(context, url, callback):
+async def load(context, url, callback):
     return load_sync(context, url, callback)
 
 
