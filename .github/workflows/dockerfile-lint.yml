@@ -1,4 +1,4 @@
-name: Dockerfile
+name: Dockerfile linting
 
 on:
   push:
