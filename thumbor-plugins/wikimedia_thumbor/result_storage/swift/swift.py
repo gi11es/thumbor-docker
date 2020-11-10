@@ -71,7 +71,7 @@ class Storage(BaseStorage):
 
     # Coverage strangely reports lines lacking coverage in that function that
     # don't make sense
-    def put(self, bytes):  # pragma: no cover
+    async def put(self, bytes):  # pragma: no cover
         self.debug('[SWIFT_STORAGE] put')
 
         if not hasattr(self.context, 'wikimedia_thumbnail_container'):
@@ -124,7 +124,7 @@ class Storage(BaseStorage):
             # We cannnot let exceptions bubble up, because they would leave
             # the client's connection hanging
 
-    async def get(self, callback):
+    async def get(self):
         self.debug('[SWIFT_STORAGE] get: %r %r' % (
                 self.context.wikimedia_thumbnail_container,
                 self.context.wikimedia_thumbnail_save_path
@@ -147,7 +147,7 @@ class Storage(BaseStorage):
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.success', 'Thumbor-Swift-Thumbnail-Success-Time')
 
             self.debug('[SWIFT_STORAGE] found')
-            callback(data)
+            return data
         # We want this to be exhaustive because not catching an exception here
         # would result in the request hanging indefinitely
         except ClientException:
@@ -156,7 +156,7 @@ class Storage(BaseStorage):
             # No need to log this one, it's expected behavior when the
             # requested object isn't there
             self.debug('[SWIFT_STORAGE] missing')
-            callback(None)
+            return None
         except AssertionError as e:
             # Let assertion errors go through for tests
             raise e
@@ -164,7 +164,7 @@ class Storage(BaseStorage):
             logging.disable(logging.NOTSET)
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.exception', 'Thumbor-Swift-Thumbnail-Exception-Time')
             self.error('[SWIFT_STORAGE] get exception: %r' % e)
-            callback(None)
+            return None
 
     def debug(self, message):
         logger.debug(message, extra=log_extra(self.context))

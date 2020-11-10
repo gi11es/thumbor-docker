@@ -160,10 +160,10 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
 
     def test_swift(self):
         # Thumbnail doesn't exist yet
-        self.retrieve(
+        self.fetch(
             '/wikipedia/en/thumb/d/d3/1Mcolors.png/400px-1Mcolors.png'
         )
         # Thumbnail exists now
-        self.retrieve(
+        self.fetch(
             '/wikipedia/en/thumb/d/d3/1Mcolors.png/400px-1Mcolors.png'
         )

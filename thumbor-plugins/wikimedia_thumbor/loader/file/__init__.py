@@ -29,7 +29,7 @@ def cleanup_temp_file(path):
     ShellRunner.rm_f(path)
 
 
-async def load(context, path, callback):
+async def load(context, path):
     file_path = join(context.config.FILE_LOADER_ROOT_PATH.rstrip('/'), path.lstrip('/'))
     file_path = abspath(file_path)
     inside_root_path = file_path.startswith(context.config.FILE_LOADER_ROOT_PATH)
@@ -38,7 +38,7 @@ async def load(context, path, callback):
 
     if inside_root_path and exists(file_path):
 
-        with open(file_path, 'r') as f:
+        with open(file_path, 'rb') as f:
             stats = fstat(f.fileno())
 
             result.successful = True
@@ -70,4 +70,4 @@ async def load(context, path, callback):
         result.error = 404
         result.successful = False
 
-    callback(result)
+    return result

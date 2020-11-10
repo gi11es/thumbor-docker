@@ -2,6 +2,11 @@ import json
 from thumbor.config import Config
 from thumbor.handlers import BaseHandler
 
+from tornado.httpclient import HTTPRequest, HTTPResponse, HTTPClientError
+from tornado.testing import get_async_test_timeout
+
+from typing import Any
+
 
 from . import WikimediaTestCase
 
@@ -79,7 +84,8 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         expected_filters -- expected thumbor filters
         expected_content_disposition -- expected content disposition
         """
-        response = self.retrieve(url, headers)
+        request = HTTPRequest(url=self.get_url(url), headers=headers)
+        response = self.fetch_request(request)
 
         try:
             xkey = response.headers.get_list('xkey')[0]
@@ -443,7 +449,7 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         url,
         expected_status
     ):
-        response = self.retrieve(url)
+        response = self.fetch(url)
         assert response.code == expected_status
 
     def test_missing_mandatory_parameters(self):
@@ -460,4 +466,12 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         self.run_and_check_error(
             '/wikipedia/en/thumb/7/77/1Mcolors.png/1Mcolors.png/199px-1Mcolors.png',
             404
+        )
+
+    def fetch_request(
+        self, request: HTTPRequest
+    ) -> HTTPResponse:
+        return self.io_loop.run_sync(
+            lambda: self.http_client.fetch(request, raise_error=False),
+            timeout=get_async_test_timeout(),
         )

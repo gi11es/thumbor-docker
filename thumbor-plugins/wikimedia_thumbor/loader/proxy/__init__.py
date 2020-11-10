@@ -33,15 +33,15 @@ def validate(context, url):
     )
 
 
-def return_contents(response, url, callback, context):  # pragma: no cover
-    return http_loader.return_contents(response, url, callback, context)
+def return_contents(response, url, context):  # pragma: no cover
+    return http_loader.return_contents(response, url, context)
 
 
 def encode(string):  # pragma: no cover
     return http_loader.encode(string)
 
 
-async def load(context, url, callback):
+async def load(context, url):
     for loader in context.config.PROXY_LOADER_LOADERS:
         if loader in modules:
             mod = modules[loader]
@@ -51,11 +51,10 @@ async def load(context, url, callback):
             modules[loader] = mod
 
         if mod.should_run(url):
-            return mod.load_sync(context, url, callback)
+            return await mod.load(context, url)
 
-    return http_loader.load_sync(
+    return await http_loader.load(
         context,
         url,
-        callback,
         normalize_url_func=_normalize_url
     )

@@ -46,16 +46,7 @@ def should_run(url):  # pragma: no cover
     return False
 
 
-async def load(context, url, callback):
-    return load_sync(context, url, callback)
-
-
-def get_swift_token(context):
-    url, token = swift(context).get_auth()
-    return token
-
-
-def load_sync(context, url, callback):
+async def load(context, url):
     # Disable storage of original. These lines are useful if
     # you want your Thumbor instance to store all originals persistently
     # except video frames.
@@ -85,7 +76,7 @@ def load_sync(context, url, callback):
 
     command = ShellRunner.wrap_command(command, context)
 
-    logger.debug('[Video] load_sync: %r' % command)
+    logger.debug('[Video] load: %r' % command)
 
     process = Subprocess(
         command,
@@ -93,15 +84,14 @@ def load_sync(context, url, callback):
         stderr=Subprocess.STREAM
     )
 
-    process.set_exit_callback(
-        partial(
-            _parse_time_status,
-            context,
-            normalized_url,
-            callback,
-            process
-        )
-    )
+    status = await process.wait_for_exit()
+
+    return await _parse_time_status(context, normalized_url, process, status)
+
+
+def get_swift_token(context):
+    url, token = swift(context).get_auth()
+    return token    
 
 
 def _http_code_from_stderr(context, process, result, normalized_url):
@@ -126,7 +116,7 @@ def _http_code_from_stderr(context, process, result, normalized_url):
         result.error = LoaderResult.ERROR_UPSTREAM
 
 
-def _parse_time_status(context, normalized_url, callback, process, status):
+async def _parse_time_status(context, normalized_url, process, status):
     if status != 0:
         result = LoaderResult()
 
@@ -134,22 +124,18 @@ def _parse_time_status(context, normalized_url, callback, process, status):
         process.stdout.close()
         process.stderr.close()
 
-        callback(result)
+        return result
     else:
-        process.stdout.read_until_close(
-            partial(
-                _parse_time,
-                context,
-                normalized_url,
-                callback
-            )
-        )
+        output = await process.stdout.read_until_close()
 
         process.stdout.close()
         process.stderr.close()
 
+        return await _parse_time(context, normalized_url, output)
+        
 
-def _parse_time(context, normalized_url, callback, output):
+
+async def _parse_time(context, normalized_url, output):
     # T183907 Some files have completely corrupt duration fields,
     # but we can still extract their first frame for a thumbnail
     try:
@@ -162,10 +148,10 @@ def _parse_time(context, normalized_url, callback, output):
     except AttributeError:
         seek = duration / 2
 
-    seek_and_screenshot(callback, context, normalized_url, seek)
+    return await seek_and_screenshot(context, normalized_url, seek)
 
 
-def seek_and_screenshot(callback, context, normalized_url, seek):
+async def seek_and_screenshot(context, normalized_url, seek):
     output_file = NamedTemporaryFile(delete=False)
 
     command = [
@@ -209,21 +195,12 @@ def seek_and_screenshot(callback, context, normalized_url, seek):
         stderr=Subprocess.STREAM
     )
 
-    process.set_exit_callback(
-        partial(
-            _process_done,
-            callback,
-            process,
-            context,
-            normalized_url,
-            seek,
-            output_file
-        )
-    )
+    status = await process.wait_for_exit()
+
+    return await _process_done(process, context, normalized_url, seek, output_file, status)
 
 
-def _process_done(
-        callback,
+async def _process_done(
         process,
         context,
         normalized_url,
@@ -241,8 +218,7 @@ def _process_done(
     # If rendering the desired frame fails, attempt to render the
     # first frame instead
     if status != 0 and seek > 0:
-        seek_and_screenshot(callback, context, normalized_url, 0)
-        return
+        return await seek_and_screenshot(context, normalized_url, 0)
 
     result = LoaderResult()
 
@@ -264,7 +240,7 @@ def _process_done(
             logger.error('[Video] Unable to unlink output file', extra=log_extra(context))
             raise
 
-    callback(result)
+    return result
 
 
 def _normalize_url(url):

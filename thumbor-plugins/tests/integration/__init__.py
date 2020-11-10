@@ -21,11 +21,6 @@ class WikimediaTestCase(AsyncHTTPTestCase):
     def get_new_ioloop(self):
         return IOLoop.instance()
 
-    def retrieve(self, url, headers=None):
-        request = HTTPRequest(url=self.get_url(url), headers=headers, request_timeout=60)
-        self.http_client.fetch(request, self.stop)
-        return self.wait(timeout=60)
-
     def get_config(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
 
@@ -122,17 +117,6 @@ class WikimediaTestCase(AsyncHTTPTestCase):
 
         return application
 
-    def fetch(self, url):
-        try:
-            result = self.retrieve("/%s" % url)
-        except Exception as e:
-            assert False, 'Exception occured: %r' % e
-
-        assert result is not None, 'No result'
-        assert result.code == 200, 'Response code: %s' % result.code
-
-        return result.buffer
-
     def run_and_check_ssim_and_size(
         self,
         url,
@@ -154,11 +138,17 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         size_tolerance -- maximum file size ratio between reference and result
         perfect_reference_thumbnail -- perfect lossless version of the target thumbnail, for visual comparison
         """
-        result = self.fetch(url)
+        try:
+            result = self.fetch(url)
+        except Exception as e:
+            assert False, 'Exception occured: %r' % e
 
-        result.seek(0)
+        assert result is not None, 'No result'
+        assert result.code == 200, 'Response code: %s' % result.code
 
-        generated = Image.open(result)
+        result.buffer.seek(0)
+
+        generated = Image.open(result.buffer)
 
         expected_path = os.path.join(
             os.path.dirname(__file__),
@@ -184,10 +174,10 @@ class WikimediaTestCase(AsyncHTTPTestCase):
         assert ssim >= expected_ssim, 'Images too dissimilar: %f (should be >= %f)\n' % (ssim, expected_ssim)
 
         expected_filesize = float(os.path.getsize(expected_path))
-        generated_filesize = float(len(result.getvalue()))
+        generated_filesize = float(len(result.buffer.getvalue()))
 
         ratio = generated_filesize / expected_filesize
         assert ratio <= size_tolerance, \
             'Generated file bigger than size tolerance: %f (should be <= %f)' % (ratio, size_tolerance)
 
-        return result
+        return result.buffer

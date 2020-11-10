@@ -35,6 +35,7 @@ class Engine(BaseEngine):
         # Setting it this way avoids hitting the __setattr__
         # proxying
         super(Engine, self).__setattr__('lcl', {})
+        super(Engine, self).__setattr__('multiple_engine', None)
 
         self.lcl['context'] = context
         self.lcl['engines'] = engines
@@ -59,7 +60,7 @@ class Engine(BaseEngine):
 
         logger.debug('[Proxy] Looking for a %s engine' % ext)
 
-        for enginename, extensions in self.lcl['engines'].iteritems():
+        for enginename, extensions in self.lcl['engines'].items():
             engine = self.lcl[enginename]
 
             if ext in extensions:
@@ -99,6 +100,7 @@ class Engine(BaseEngine):
 
     # This is our entry point for the proxy, it's the first call to the engine
     def load(self, buffer, extension):
+        logger.debug('[Proxy] load: %r' % extension)
         self.lcl['processing_time'] = datetime.datetime.now()
         self.lcl['processing_utime'] = utime()
 
@@ -187,6 +189,6 @@ class Engine(BaseEngine):
 
     def cleanup(self):  # pragma: no cover
         # Call cleanup on all the engines
-        for enginename, extensions in self.lcl['engines'].iteritems():
+        for enginename, extensions in self.lcl['engines'].items():
             engine = self.lcl[enginename]
             engine.cleanup()

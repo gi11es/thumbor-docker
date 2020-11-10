@@ -27,15 +27,15 @@ class Storage(BaseStorage):
     def put_crypto(self, path):
         return path
 
-    async def exists(self, path, callback):
-        callback(path in self.dict)
+    async def exists(self, path):
+        return path in self.dict
 
-    async def get(self, path, callback):
+    async def get(self, path):
         logger.debug("[REQUEST_STORAGE] get: %s" % path)
         try:
             value = self.dict[path]
             logger.debug("[REQUEST_STORAGE] found")
-            callback(value)
+            return value
         except KeyError:
             logger.debug("[REQUEST_STORAGE] missing")
-            callback(None)
+            return None

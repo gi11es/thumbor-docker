@@ -18,7 +18,6 @@ import memcache
 import random
 import sys
 import tornado.ioloop
-import tornado.gen as gen
 
 from thumbor.context import RequestParameters
 from thumbor.handlers import BaseHandler
@@ -240,7 +239,7 @@ class ImagesHandler(ImagingHandler):
 
             if '!' in filename:
                 hashed_name = filename.split('!', 1)[1] + '.' + kw['extension']
-                hashed = hashlib.md5(hashed_name).hexdigest()
+                hashed = hashlib.md5(hashed_name.encode('utf-8')).hexdigest()
                 original_shard1 = hashed[:1]
                 original_shard2 = hashed[:2]
 
@@ -393,8 +392,7 @@ class ImagesHandler(ImagingHandler):
 
         return xkey
 
-    @gen.coroutine
-    def check_image(self, kw):
+    async def check_image(self, kw):
         now = datetime.datetime.now()
         timestamp = mktime(now.timetuple())
 
@@ -443,8 +441,7 @@ class ImagesHandler(ImagingHandler):
             # Check if an image with an uuid exists in storage
             image = translated_kw['image']
             truncated_image = image[:self.context.config.MAX_ID_LENGTH]
-            maybe_future = self.context.modules.storage.exists(truncated_image)
-            exists = yield gen.maybe_future(maybe_future)
+            exists = await self.context.modules.storage.exists(truncated_image)
             if exists:  # pragma: no cover
                 translated_kw['image'] = truncated_image
 
@@ -461,16 +458,16 @@ class ImagesHandler(ImagingHandler):
 
         self.poolcounter_time = datetime.timedelta(0)
 
-        throttled = yield self.poolcounter_throttle(translated_kw['image'], kw['extension'])
+        throttled = await self.poolcounter_throttle(translated_kw['image'], kw['extension'])
 
         if throttled:
             return
 
         record_timing(self.context, self.poolcounter_time, 'poolcounter.time', 'Thumbor-Poolcounter-Time')
 
-        self.execute_image_operations()
+        await self.execute_image_operations()
 
-    def finish(self):
+    def on_finish(self):
         if hasattr(self, 'pc') and self.pc:
             self.pc.close()
             self.pc = None
@@ -480,30 +477,29 @@ class ImagesHandler(ImagingHandler):
         if mc:
             mc.disconnect_all()
 
-        super(ImagesHandler, self).finish()
-
         self.context.metrics.incr('response.status.' + str(self.get_status()))
 
-    @gen.coroutine
-    def poolcounter_throttle_key(self, key, cfg):
+        super(ImagesHandler, self).on_finish()
+
+    async def poolcounter_throttle_key(self, key, cfg):
         extra = log_extra(self.context)
         extra['poolcounter-key'] = key
         extra['poolcounter-config'] = cfg
 
         start = datetime.datetime.now()
         try:
-            lock_acquired = yield self.pc.acq4me(key, cfg['workers'], cfg['maxqueue'], cfg['timeout'])
+            lock_acquired = await self.pc.acq4me(key, cfg['workers'], cfg['maxqueue'], cfg['timeout'])
             self.poolcounter_time += datetime.datetime.now() - start
         except tornado.iostream.StreamClosedError:
             self.poolcounter_time += datetime.datetime.now() - start
             # If something is wrong with poolcounter, don't throttle
             logger.error('[ImagesHandler] Failed to leverage PoolCounter', extra=extra)
             self.context.metrics.incr('poolcounter.failure')
-            raise tornado.gen.Return(False)
+            return False
 
         if lock_acquired:
             self.context.metrics.incr('poolcounter.locked')
-            raise tornado.gen.Return(False)
+            return False
 
         self.context.metrics.incr('poolcounter.throttled')
 
@@ -522,14 +518,13 @@ class ImagesHandler(ImagingHandler):
             429,
             'Too many thumbnail requests'
         )
-        raise tornado.gen.Return(True)
+        return True
 
-    @gen.coroutine
-    def poolcounter_throttle(self, filename, extension):
+    async def poolcounter_throttle(self, filename, extension):
         self.pc = None
 
         if not self.context.config.get('POOLCOUNTER_SERVER', False):
-            raise tornado.gen.Return(False)
+            return False
 
         self.pc = PoolCounter(self.context)
 
@@ -540,26 +535,26 @@ class ImagesHandler(ImagingHandler):
                 logger.warn('[ImagesHandler] No X-Forwarded-For header in request, cannot throttle per IP')
             else:
                 ff = ff.split(', ')[0]
-                throttled = yield self.poolcounter_throttle_key('thumbor-ip-%s' % ff, cfg)
+                throttled = await self.poolcounter_throttle_key('thumbor-ip-%s' % ff, cfg)
 
                 if throttled:
-                    raise tornado.gen.Return(True)
+                    return True
 
         cfg = self.context.config.get('POOLCOUNTER_CONFIG_PER_ORIGINAL', False)
         if cfg:
             name_sha1 = hashlib.sha1(filename).hexdigest()
 
-            throttled = yield self.poolcounter_throttle_key('thumbor-render-%s' % name_sha1, cfg)
+            throttled = await self.poolcounter_throttle_key('thumbor-render-%s' % name_sha1, cfg)
 
             if throttled:
-                raise tornado.gen.Return(True)
+                return True
 
         cfg = self.context.config.get('POOLCOUNTER_CONFIG_EXPENSIVE', False)
         if cfg and extension.lower() in cfg['extensions']:
-            throttled = yield self.poolcounter_throttle_key('thumbor-render-expensive', cfg)
+            throttled = await self.poolcounter_throttle_key('thumbor-render-expensive', cfg)
 
             if throttled:
-                raise tornado.gen.Return(True)
+                return True
 
         # This closes the PoolCounter connection in case it hasn't been closed normally.
         # Which can happen if an exception occured while processing the file, for example.
@@ -571,7 +566,7 @@ class ImagesHandler(ImagingHandler):
                 partial(close_poolcounter, self.pc)
             )
 
-        raise tornado.gen.Return(False)
+        return False
 
     # With our IM engine, exceptions may occur during _load_results
     # Which Thumbor doesn't handle gracefully
