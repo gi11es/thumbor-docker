@@ -192,7 +192,6 @@ class Engine(BaseEngine):
         command = [
             '-icc_profile',
             '-b',
-            '-m',
         ]
 
         self.icc_profile_saved = Engine.exiftool.command(
@@ -205,7 +204,6 @@ class Engine(BaseEngine):
         self.debug('[IM] Processing EXIF')
 
         command = [
-            '-m',
             '-all=',  # Strip all existing metadata
         ]
 

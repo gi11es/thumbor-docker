@@ -1,12 +1,12 @@
+import logging
 import json
+from typing import Any
+
 from thumbor.config import Config
 from thumbor.handlers import BaseHandler
 
 from tornado.httpclient import HTTPRequest, HTTPResponse, HTTPClientError
 from tornado.testing import get_async_test_timeout
-
-from typing import Any
-
 
 from . import WikimediaTestCase
 
@@ -85,7 +85,10 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
         expected_content_disposition -- expected content disposition
         """
         request = HTTPRequest(url=self.get_url(url), headers=headers)
+        # Avoids errors about expected 504s going to the logger
+        logging.disable(logging.ERROR)
         response = self.fetch_request(request)
+        logging.disable(logging.NOTSET)
 
         try:
             xkey = response.headers.get_list('xkey')[0]

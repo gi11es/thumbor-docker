@@ -14,7 +14,7 @@ import random
 from swiftclient import client
 from swiftclient.exceptions import ClientException
 
-from thumbor.result_storages import BaseStorage
+from thumbor.result_storages import BaseStorage, ResultStorageResult
 from thumbor.utils import logger
 
 from wikimedia_thumbor.logging import record_timing, log_extra
@@ -147,7 +147,7 @@ class Storage(BaseStorage):
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.success', 'Thumbor-Swift-Thumbnail-Success-Time')
 
             self.debug('[SWIFT_STORAGE] found')
-            return data
+            return ResultStorageResult(buffer=data,metadata=headers)
         # We want this to be exhaustive because not catching an exception here
         # would result in the request hanging indefinitely
         except ClientException:
