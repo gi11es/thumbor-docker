@@ -12,4 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps: 
     - name: Build Dockerfile
-      run: docker build .
+      run: |
+        ls -al
+        docker build .
