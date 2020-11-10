@@ -147,7 +147,7 @@ class Storage(BaseStorage):
             record_timing(self.context, datetime.datetime.now() - start, 'swift.thumbnail.read.success', 'Thumbor-Swift-Thumbnail-Success-Time')
 
             self.debug('[SWIFT_STORAGE] found')
-            return ResultStorageResult(buffer=data,metadata=headers)
+            return ResultStorageResult(buffer=data, metadata=headers)
         # We want this to be exhaustive because not catching an exception here
         # would result in the request hanging indefinitely
         except ClientException:

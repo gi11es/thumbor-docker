@@ -1,11 +1,10 @@
 import logging
 import json
-from typing import Any
 
 from thumbor.config import Config
 from thumbor.handlers import BaseHandler
 
-from tornado.httpclient import HTTPRequest, HTTPResponse, HTTPClientError
+from tornado.httpclient import HTTPRequest
 from tornado.testing import get_async_test_timeout
 
 from . import WikimediaTestCase
@@ -471,9 +470,7 @@ class WikimediaImagesHandlerTestCase(WikimediaTestCase):
             404
         )
 
-    def fetch_request(
-        self, request: HTTPRequest
-    ) -> HTTPResponse:
+    def fetch_request(self, request):
         return self.io_loop.run_sync(
             lambda: self.http_client.fetch(request, raise_error=False),
             timeout=get_async_test_timeout(),

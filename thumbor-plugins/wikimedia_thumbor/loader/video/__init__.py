@@ -17,7 +17,6 @@
 import errno
 import re
 import os
-from functools import partial
 from tempfile import NamedTemporaryFile
 
 from thumbor.loaders import LoaderResult
@@ -91,7 +90,7 @@ async def load(context, url):
 
 def get_swift_token(context):
     url, token = swift(context).get_auth()
-    return token    
+    return token
 
 
 def _http_code_from_stderr(context, process, result, normalized_url):
@@ -132,7 +131,6 @@ async def _parse_time_status(context, normalized_url, process, status):
         process.stderr.close()
 
         return await _parse_time(context, normalized_url, output)
-        
 
 
 async def _parse_time(context, normalized_url, output):

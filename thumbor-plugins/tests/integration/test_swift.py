@@ -1,6 +1,4 @@
-from functools import partial
 import os
-from requests.adapters import HTTPAdapter
 from swiftclient.client import Connection
 from swiftclient.exceptions import ClientException
 from thumbor.config import Config
@@ -15,21 +13,6 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
     def setUp(self):
         super(WikimediaSwiftTestCase, self).setUp()
 
-        self.original_send = HTTPAdapter.send
-
-        def send(
-            self,
-            request,
-            stream=False,
-            timeout=None,
-            verify=True,
-            cert=None,
-            proxies=None
-        ):
-            resp = UrlLib3HTTPResponse(status=200)
-            return self.build_response(request, resp)
-
-        HTTPAdapter.send = send
         self.original_fetch_impl = SimpleAsyncHTTPClient.fetch_impl
 
         def fetch_impl(self, request, callback):
@@ -61,7 +44,6 @@ class WikimediaSwiftTestCase(WikimediaTestCase):
 
     def tearDown(self):
         super(WikimediaSwiftTestCase, self).tearDown()
-        HTTPAdapter.send = self.original_send
         SimpleAsyncHTTPClient.fetch_impl = self.original_fetch_impl
         Connection.get_object = self.original_get_object
         Connection.put_object = self.original_put_object

@@ -21,4 +21,4 @@ WORKDIR /root/core
 RUN make PIP=pip3 setup pyvows_run install
 ADD thumbor-plugins /root/thumbor-plugins/
 WORKDIR /root/thumbor-plugins
-RUN make setup offline-test
+RUN make setup single-test

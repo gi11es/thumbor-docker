@@ -7,7 +7,6 @@ from ssim import compute_ssim
 
 from tornado.ioloop import IOLoop
 from tornado.testing import AsyncHTTPTestCase
-from tornado.httpclient import HTTPRequest
 
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
