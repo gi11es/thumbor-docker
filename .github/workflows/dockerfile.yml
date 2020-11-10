@@ -13,5 +13,5 @@ jobs:
     steps: 
     - name: Build Dockerfile
       run: |
-        ls -al
+        ls -al ../
         docker build .
