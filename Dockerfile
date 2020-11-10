@@ -1,8 +1,6 @@
 FROM debian:buster
 
-RUN apt-get update
-RUN apt-get upgrade -y
-RUN apt-get install -y python3 redis memcached imagemagick build-essential cython3 webp ffmpeg gifsicle exiftool libjpeg-turbo-progs libcairo2 curl coreutils libexiv2-dev libboost-python-dev python3-setuptools xcftools libvips-tools librsvg2-bin ghostscript djvulibre-bin
+RUN apt-get update && apt-get install --no-install-recommends -y python3 redis memcached imagemagick build-essential cython3 webp ffmpeg gifsicle exiftool libjpeg-turbo-progs libcairo2 curl coreutils libexiv2-dev libboost-python-dev python3-setuptools xcftools libvips-tools librsvg2-bin ghostscript djvulibre-bin && rm -rf /var/lib/apt/lists/*
 ADD pip /root/pip/
 WORKDIR /root/pip
 RUN python3 setup.py install
@@ -21,4 +19,4 @@ WORKDIR /root/core
 RUN make PIP=pip3 setup pyvows_run install
 ADD thumbor-plugins /root/thumbor-plugins/
 WORKDIR /root/thumbor-plugins
-RUN make setup single-test
+RUN make setup offline-test
