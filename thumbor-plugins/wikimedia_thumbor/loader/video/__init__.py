@@ -83,7 +83,7 @@ async def load(context, url):
         stderr=Subprocess.STREAM
     )
 
-    status = await process.wait_for_exit()
+    status = await process.wait_for_exit(False)
 
     return await _parse_time_status(context, normalized_url, process, status)
 
@@ -95,14 +95,16 @@ def get_swift_token(context):
 
 def _http_code_from_stderr(context, process, result, normalized_url):
     result.successful = False
-    stderr = process.stderr.read_from_fd()
+
+    stderr = bytearray(4096)
+    process.stderr.read_from_fd(stderr)
 
     extra = log_extra(context)
     extra['stderr'] = stderr
     extra['normalized_url'] = normalized_url
 
     logger.error('[Video] Fprobe/ffmpeg errored', extra=extra)
-    code = re.match(r'.*Server returned (\d\d\d).*', stderr)
+    code = re.match(r'.*Server returned (\d\d\d).*', stderr.decode('ascii'))
 
     if code:
         code = int(code.group(1))
@@ -193,7 +195,8 @@ async def seek_and_screenshot(context, normalized_url, seek):
         stderr=Subprocess.STREAM
     )
 
-    status = await process.wait_for_exit()
+    status = await process.wait_for_exit(False
+        )
 
     return await _process_done(process, context, normalized_url, seek, output_file, status)
 
