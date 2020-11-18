@@ -10,3 +10,6 @@
 [submodule "pyvows"]
 	path = pyvows
 	url = https://github.com/heynemann/pyvows
+[submodule "3d2png"]
+	path = 3d2png
+	url = https://gerrit.wikimedia.org/r/3d2png
