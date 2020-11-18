@@ -18,55 +18,55 @@ class WikimediaVipsHttpsLoaderTest(WikimediaTestCase):
 
     def test_tiff(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(jpg)/https://upload.wikimedia.org/wikipedia/commons/0/0e/0729.tiff',
-            'lossy-page1-400px-0729.tiff.jpg',
-            'lossy-page1-400px-0729.tiff.png',
-            400,
-            254,
-            0.95,
-            0.7,
+            url='/thumbor/unsafe/400x/filters:format(jpg)/https://upload.wikimedia.org/wikipedia/commons/0/0e/0729.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-0729.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-0729.tiff.png',
+            expected_width=400,
+            expected_height=254,
+            expected_ssim=0.95,
+            size_tolerance=0.7,
         )
 
     def test_multipage_tiff(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(jpg):page(3)/https://upload.wikimedia.org/wikipedia/commons/8/87/All_that_jazz.tif',
-            'lossy-page3-400px-All_that_jazz.tif.jpg',
-            'lossy-page3-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.98,
-            0.6,
+            url='/thumbor/unsafe/400x/filters:format(jpg):page(3)/https://upload.wikimedia.org/wikipedia/commons/2/28/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.99,
+            size_tolerance=0.8,
         )
 
     def test_multipage_tiff_without_page_filter(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(jpg)/https://upload.wikimedia.org/wikipedia/commons/8/87/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.98,
-            0.63,
+            url='/thumbor/unsafe/400x/filters:format(jpg)/https://upload.wikimedia.org/wikipedia/commons/2/28/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.99,
+            size_tolerance=0.77,
         )
 
     def test_multipage_tiff_with_out_of_bounds_page(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(jpg):page(500)/https://upload.wikimedia.org/wikipedia/commons/8/87/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.98,
-            0.63,
+            url='/thumbor/unsafe/400x/filters:format(jpg):page(500)/https://upload.wikimedia.org/wikipedia/commons/2/28/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.99,
+            size_tolerance=0.77,
         )
 
     def test_png(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/https://upload.wikimedia.org/wikipedia/commons/c/cf/WorldMap-A_non-Frame.png',
-            '400px-WorldMap-A_non-Frame.png',
-            '400px-WorldMap-A_non-Frame.png',
-            400,
-            200,
-            0.94,
-            1.0
+            url='/thumbor/unsafe/400x/https://upload.wikimedia.org/wikipedia/commons/c/cf/WorldMap-A_non-Frame.png',
+            mediawiki_reference_thumbnail='400px-WorldMap-A_non-Frame.png',
+            perfect_reference_thumbnail='400px-WorldMap-A_non-Frame.png',
+            expected_width=400,
+            expected_height=200,
+            expected_ssim=0.94,
+            size_tolerance=1.0
         )

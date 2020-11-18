@@ -1,5 +1,6 @@
 import platform
 import os.path
+from tempfile import NamedTemporaryFile
 
 from PIL import Image
 
@@ -11,6 +12,7 @@ from tornado.testing import AsyncHTTPTestCase
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
 from thumbor.importer import Importer
+from thumbor.utils import logger
 from shutil import which
 
 from wikimedia_thumbor.app import App
@@ -170,7 +172,14 @@ class WikimediaTestCase(AsyncHTTPTestCase):
 
         ssim = compute_ssim(generated, visual_expected)
 
-        assert ssim >= expected_ssim, 'Images too dissimilar: %f (should be >= %f)\n' % (ssim, expected_ssim)
+        try:
+            assert ssim >= expected_ssim, 'Images too dissimilar: %f (should be >= %f)\n' % (ssim, expected_ssim)
+        except AssertionError as e:
+            output_file = NamedTemporaryFile(delete=False)
+            output_file.write(result.buffer.getvalue())
+            output_file.close()
+            logger.error('Dumped generated test image for debugging purposes: %s' % output_file.name)
+            raise e
 
         expected_filesize = float(os.path.getsize(expected_path))
         generated_filesize = float(len(result.buffer.getvalue()))

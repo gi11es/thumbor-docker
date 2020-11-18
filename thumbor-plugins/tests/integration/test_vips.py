@@ -10,120 +10,120 @@ class WikimediaVipsTest(WikimediaTestCase):
 
     def test_tiff(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(jpg)/0729.tiff',
-            'lossy-page1-400px-0729.tiff.jpg',
-            'lossy-page1-400px-0729.tiff.png',
-            400,
-            254,
-            0.95,
-            0.61,
+            url='/thumbor/unsafe/400x/filters:format(jpg)/0729.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-0729.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-0729.tiff.png',
+            expected_width=400,
+            expected_height=254,
+            expected_ssim=0.95,
+            size_tolerance=0.61,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(webp)/0729.tiff',
-            'lossy-page1-400px-0729.tiff.jpg',
-            'lossy-page1-400px-0729.tiff.png',
-            400,
-            254,
-            0.98,
-            1.12,
+            url='/thumbor/unsafe/400x/filters:format(webp)/0729.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-0729.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-0729.tiff.png',
+            expected_width=400,
+            expected_height=254,
+            expected_ssim=0.98,
+            size_tolerance=1.12,
         )
 
     def test_multipage_tiff(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(jpg):page(3)/All_that_jazz.tif',
-            'lossy-page3-400px-All_that_jazz.tif.jpg',
-            'lossy-page3-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.98,
-            0.6,
+            url='/thumbor/unsafe/400x/filters:format(jpg):page(3)/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.99,
+            size_tolerance=0.8,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(webp):page(3)/All_that_jazz.tif',
-            'lossy-page3-400px-All_that_jazz.tif.jpg',
-            'lossy-page3-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.99,
-            0.68,
+            url='/thumbor/unsafe/400x/filters:format(webp):page(3)/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page3-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.98,
+            size_tolerance=0.66,
         )
 
     def test_multipage_tiff_without_page_filter(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(jpg)/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.99,
-            0.63,
+            url='/thumbor/unsafe/400x/filters:format(jpg)/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.99,
+            size_tolerance=0.77,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(webp)/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.99,
-            0.61,
+            url='/thumbor/unsafe/400x/filters:format(webp)/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.98,
+            size_tolerance=0.66,
         )
 
     def test_multipage_tiff_with_out_of_bounds_page(self):
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(jpg):page(500)/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.99,
-            0.63,
+            url='/thumbor/unsafe/400x/filters:format(jpg):page(500)/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.99,
+            size_tolerance=0.77,
         )
         self.run_and_check_ssim_and_size(
-            '/thumbor/unsafe/400x/filters:format(webp):page(500)/All_that_jazz.tif',
-            'lossy-page1-400px-All_that_jazz.tif.jpg',
-            'lossy-page1-400px-All_that_jazz.tif.png',
-            400,
-            518,
-            0.99,
-            0.61,
+            url='/thumbor/unsafe/400x/filters:format(webp):page(500)/International_Convention_for_Regulation_of_Whaling.tiff',
+            mediawiki_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.jpg',
+            perfect_reference_thumbnail='lossy-page1-400px-International_Convention_for_Regulation_of_Whaling.tiff.png',
+            expected_width=400,
+            expected_height=566,
+            expected_ssim=0.98,
+            size_tolerance=0.66,
         )
 
     def test_tiff_with_invalid_icc_profile(self):
         self.run_and_check_ssim_and_size(
-            (
+            url=(
                 '/thumbor/unsafe/400x/filters:format(jpg)/Julia_Margaret_'
                 'Cameron_-_Queen_of_the_May_-_1984.166_-_Cleveland_Museum_of_Art.tif'
             ),
-            (
+            mediawiki_reference_thumbnail=(
                 'lossy-page1-400px-Julia_Margaret_Cameron_-_Queen_of_the_May_'
                 '-_1984.166_-_Cleveland_Museum_of_Art.tif.jpg'
             ),
-            (
+            perfect_reference_thumbnail=(
                 'lossy-page1-400px-Julia_Margaret_Cameron_-_Queen_of_the_May_'
                 '-_1984.166_-_Cleveland_Museum_of_Art.tif.png'
             ),
-            400,
-            527,
-            0.97,
-            0.6,
+            expected_width=400,
+            expected_height=527,
+            expected_ssim=0.97,
+            size_tolerance=0.6,
         )
         self.run_and_check_ssim_and_size(
-            (
+            url=(
                 '/thumbor/unsafe/400x/filters:format(webp)/Julia_Margaret_'
                 'Cameron_-_Queen_of_the_May_-_1984.166_-_Cleveland_Museum_of_Art.tif'
             ),
-            (
+            mediawiki_reference_thumbnail=(
                 'lossy-page1-400px-Julia_Margaret_Cameron_-_Queen_of_the_May_'
                 '-_1984.166_-_Cleveland_Museum_of_Art.tif.webp'
             ),
-            (
+            perfect_reference_thumbnail=(
                 'lossy-page1-400px-Julia_Margaret_Cameron_-_Queen_of_the_May_'
                 '-_1984.166_-_Cleveland_Museum_of_Art.tif.png'
             ),
-            400,
-            527,
-            0.97,
-            1.0,
+            expected_width=400,
+            expected_height=527,
+            expected_ssim=0.97,
+            size_tolerance=1.0,
         )
 
     def test_png(self):

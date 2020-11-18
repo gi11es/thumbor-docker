@@ -7,7 +7,7 @@ test:
 	@pytest tests/
 
 single-test:
-	@pytest tests/integration/test_swift.py
+	@ASYNC_TEST_TIMEOUT=60 pytest tests/integration/test_https_loader.py
 
 offline-test:
 	@ASYNC_TEST_TIMEOUT=60 pytest tests/ --ignore 'tests/integration/test_proxy_loader.py' --ignore 'tests/integration/test_huge_video.py' --ignore 'tests/integration/test_https_loader.py' --ignore 'tests/integration/test_vips_https_loader.py' --ignore 'tests/integration/test_3d.py'
