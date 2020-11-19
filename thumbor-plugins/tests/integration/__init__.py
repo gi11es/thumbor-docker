@@ -7,7 +7,8 @@ from PIL import Image
 from ssim import compute_ssim
 
 from tornado.ioloop import IOLoop
-from tornado.testing import AsyncHTTPTestCase
+from tornado.testing import AsyncHTTPTestCase, get_async_test_timeout
+from tornado.httpclient import HTTPRequest
 
 from thumbor.config import Config
 from thumbor.context import Context, ServerParameters
@@ -18,10 +19,11 @@ from shutil import which
 from wikimedia_thumbor.app import App
 
 
-class WikimediaTestCase(AsyncHTTPTestCase):
-    def get_new_ioloop(self):
-        return IOLoop.instance()
+# AsyncHTTPTestCase doesn't set request_timeout
+HTTPRequest._DEFAULTS['request_timeout'] = get_async_test_timeout()
 
+
+class WikimediaTestCase(AsyncHTTPTestCase):
     def get_config(self):
         cfg = Config(SECURITY_KEY='ACME-SEC')
 
