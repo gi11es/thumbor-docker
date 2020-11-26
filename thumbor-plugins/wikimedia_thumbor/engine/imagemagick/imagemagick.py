@@ -161,7 +161,7 @@ class Engine(BaseEngine):
         )
 
         for s in stdout.splitlines():
-            values = s.decode('ascii').split(': ', 1)
+            values = s.decode('utf-8').split(': ', 1)
             self.exif[values[0]] = values[1]
 
         self.debug('[IM] EXIF: %r' % self.exif)

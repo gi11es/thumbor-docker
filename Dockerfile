@@ -25,3 +25,16 @@ RUN which 3d2png
 ADD thumbor-plugins /root/thumbor-plugins/
 WORKDIR /root/thumbor-plugins
 RUN make setup test
+# Test build stops here, below is the setup for local development
+RUN rm -rf /root/thumbor-plugins/tests
+ADD config/tinyrgb.icc /usr/local/lib/thumbor/tinyrgb.icc
+RUN mkdir -p /thumbor/tmp
+RUN mkdir -p /thumbor/files
+ADD config/local /etc/thumbor.d/
+RUN dd if=/dev/urandom of=- bs=1024 count=1 2>/dev/null | md5sum -b - | cut -d' ' -f1 > /etc/thumbor.key
+ENV TMPDIR=/thumbor/tmp
+ENV MAGICK_TEMPORARY_PATH=/thumbor/tmp
+ENV MAGICK_DISK_LIMIT=900MB
+ENV MAGICK_MEMORY_LIMIT=900MB
+EXPOSE 8800
+CMD /usr/local/bin/thumbor --port 8800 --keyfile /etc/thumbor.key --conf /etc/thumbor.d/ -l debug

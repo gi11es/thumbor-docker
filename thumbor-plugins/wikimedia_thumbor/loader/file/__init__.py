@@ -25,6 +25,10 @@ from thumbor.loaders import LoaderResult
 from wikimedia_thumbor.shell_runner import ShellRunner
 
 
+def should_run(url):  # pragma: no cover
+    return True
+
+
 def cleanup_temp_file(path):
     ShellRunner.rm_f(path)
 
